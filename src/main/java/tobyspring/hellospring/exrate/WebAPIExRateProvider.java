@@ -10,9 +10,12 @@ import java.net.http.HttpResponse;
 
 
 public class WebAPIExRateProvider implements ExRateProvider {
-    private final ApiTemplate apiTemplate = new ApiTemplate(); // Thread끼리 공유해도 상관없기 때문에 class에 배속시킨다.
+    private final ApiTemplate apiTemplate; // 매번 만들지 않고 thread 끼리 공유 -> 상태값을 저장하면 singleton으로 사용하면 안됨 (ex. user정보)
 
-    // client(getExRate())가 callback(new SimpleApiExecutor())을 담아서 template(runExRateApi())를 호출한다.
+    public WebAPIExRateProvider(ApiTemplate apiTemplate) {
+        this.apiTemplate = apiTemplate;
+    }
+
     @Override
     public BigDecimal getExRate(String currency) {
 
