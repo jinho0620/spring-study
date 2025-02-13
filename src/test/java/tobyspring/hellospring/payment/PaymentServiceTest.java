@@ -1,42 +1,53 @@
 package tobyspring.hellospring.payment;
 
 import org.assertj.core.api.Assertions;
-import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import tobyspring.hellospring.exrate.WebAPIExRateProvider;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.time.Clock;
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 
-import static org.assertj.core.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.*;
+import static java.math.BigDecimal.valueOf;
+import static org.assertj.core.api.Assertions.assertThat;
 
 class PaymentServiceTest {
+    Clock clock;
+
+    @BeforeEach
+    void beforeEach() {
+        clock = Clock.fixed(Instant.now(), ZoneId.systemDefault());
+    }
 
     @Test
-//    @DisplayName("prepare 메소드가 요구사항 3가지를 잘 충족했는지 검증")
-    void convertedAmount() throws IOException {
-        testAmount(BigDecimal.valueOf(500), BigDecimal.valueOf(5_000));
-        testAmount(BigDecimal.valueOf(1_000), BigDecimal.valueOf(10_000));
-        testAmount(BigDecimal.valueOf(3_000), BigDecimal.valueOf(30_000));
-
-
-        // 원화환산금액의 유효시간 계산
-//        assertThat(payment.getValidUntil()).isAfter(LocalDateTime.now());
-//        assertThat(payment.getValidUntil()).isBefore(LocalDateTime.now().plusMinutes(30));
+    void convertedAmount() {
+        testAmount(BigDecimal.valueOf(500), BigDecimal.valueOf(5_000), clock);
+        testAmount(BigDecimal.valueOf(1_000), BigDecimal.valueOf(10_000), clock);
+        testAmount(BigDecimal.valueOf(3_000), BigDecimal.valueOf(30_000), clock);
 
     }
 
-    private static void testAmount(BigDecimal exRate, BigDecimal convertedAmount) throws IOException {
-        PaymentService paymentService = new PaymentService(new ExRateProviderStub(exRate));
+    @Test
+    void validUntil() {
+        PaymentService paymentService = new PaymentService(new ExRateProviderStub(valueOf(1_000)), clock);
 
         Payment payment = paymentService.prepare(1L, "USD", BigDecimal.TEN);
 
-        // 환율 정보를 가져온다. (isEqualTo는 소수점 유효숫자 갯수까지 다 비교한다.)
-        assertThat(payment.getExRate()).isEqualByComparingTo(exRate);
+        LocalDateTime now = LocalDateTime.now(clock);
+        LocalDateTime expectedValidUntil = now.plusMinutes(30);
 
-        // 원화 환산금액 계산
+        Assertions.assertThat(payment.getValidUntil()).isEqualTo(expectedValidUntil);
+    }
+
+    private static void testAmount(BigDecimal exRate, BigDecimal convertedAmount, Clock clock) {
+        PaymentService paymentService = new PaymentService(new ExRateProviderStub(exRate), clock);
+
+        Payment payment = paymentService.prepare(1L, "USD", BigDecimal.TEN);
+
+        assertThat(payment.getExRate()).isEqualByComparingTo(exRate);
         assertThat(payment.getConvertedAmount()).isEqualByComparingTo(convertedAmount);
     }
 }

@@ -7,19 +7,18 @@ import tobyspring.hellospring.payment.PaymentService;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.concurrent.TimeUnit;
 
 public class Client {
 
-    public static void main(String[] args) throws IOException, InterruptedException {
-        BeanFactory beanFactory = new AnnotationConfigApplicationContext(ObjectFactory.class);
+    public static void main(String[] args) {
+        BeanFactory beanFactory = new AnnotationConfigApplicationContext(PaymentConfig.class);
         PaymentService paymentService = beanFactory.getBean(PaymentService.class);
 
         Payment payment1 = paymentService.prepare(100L, "USD", BigDecimal.valueOf(50.74));
         System.out.println("payment1: " + payment1);
-        System.out.println("===============================================");
+//        System.out.println("===============================================");
 
-        TimeUnit.SECONDS.sleep(1);
+      /*  TimeUnit.SECONDS.sleep(1);
 
         Payment payment2 = paymentService.prepare(100L, "USD", BigDecimal.valueOf(50.74));
         System.out.println("payment2: " + payment2);
@@ -28,6 +27,6 @@ public class Client {
         TimeUnit.SECONDS.sleep(2);
 
         Payment payment3 = paymentService.prepare(100L, "USD", BigDecimal.valueOf(50.74));
-        System.out.println("payment3: " + payment3);
+        System.out.println("payment3: " + payment3);*/
     }
 }
