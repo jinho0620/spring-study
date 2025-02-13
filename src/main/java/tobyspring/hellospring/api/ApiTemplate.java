@@ -7,8 +7,20 @@ import java.math.BigDecimal;
 import java.net.URI;
 import java.net.URISyntaxException;
 
+// template (환율 정보 API 의 기본 틀)
 public class ApiTemplate {
-    // template (환율 정보 API 의 기본 틀)
+    private final ApiExecutor apiExecutor;
+    private final ExRateExtractor exRateExtractor;
+
+    public ApiTemplate() {
+        this.apiExecutor = new HttpClientApiExecutor();
+        this.exRateExtractor = new ErApiExRateExtractor();
+    }
+
+    public BigDecimal getExRate(String url) {
+        return this.getExRate(url, this.apiExecutor, this.exRateExtractor);
+    }
+
     public BigDecimal getExRate(String url, ApiExecutor apiExecutor, ExRateExtractor exRateExtractor) {
         URI uri;
         try {
