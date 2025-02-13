@@ -4,6 +4,9 @@ import tobyspring.hellospring.api.*;
 import tobyspring.hellospring.payment.ExRateProvider;
 
 import java.math.BigDecimal;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 
 
 public class WebAPIExRateProvider implements ExRateProvider {
@@ -15,8 +18,6 @@ public class WebAPIExRateProvider implements ExRateProvider {
 
         String url = "https://open.er-api.com/v6/latest/" + currency;
         // Template에서는 callback은 method 1개짜리 interface를 구현한 것만 가능하다. -> lambda식 가능
-        return apiTemplate.getExRate(url, new SimpleApiExecutor(), new ErApiExRateExtractor()); // SimpleApiExecutor : callback
+        return apiTemplate.getExRate(url, new HttpClientApiExecutor(), new ErApiExRateExtractor()); // SimpleApiExecutor : callback
     }
-
-
 }
